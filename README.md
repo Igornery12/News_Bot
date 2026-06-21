@@ -10,6 +10,8 @@ The bot is responsible for searching, filtering, and automatically gathering dai
 
 ## Python
 ## Selenium
+## Customtkinter
+
 
 ### Steps
 
@@ -18,4 +20,10 @@ The bot is responsible for searching, filtering, and automatically gathering dai
 
 ```
 pip install selenium 
+```
+
+## Install Customtkinter
+
+```
+pip install customtkinter
 ```
