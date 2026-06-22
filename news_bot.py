@@ -5,10 +5,10 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import customtkinter as ctk
 
+
 g1_url= 'https://g1.globo.com/ultimas-noticias/'
 cnn_url = 'https://www.cnnbrasil.com.br/ultimas-noticias/'
 bbc_url = 'https://www.bbc.com/portuguese'
-
 
 driver = webdriver.Chrome()
 wait = WebDriverWait(driver,10)
@@ -81,23 +81,45 @@ def read_more():
         return False
 
 
-ctk.set_appearance_mode('dark')
 
-app = ctk.CTk()
-app.title('News Bot')
-app.geometry('600x650')
+def colect_infos(site):
 
-def bot_config(site):
+    global running
+
+    if 'bbc' in site :
+        card_config = 'div.promo-text'
+        news_headline_config = 'h3'
+
+    if 'g1' in site:
+        card_config = 'div.feed-post'
+        news_headline_config = 'h2'
+
+    if 'cnn' in site:
+        card_config = 'figure.h-full'
+        news_headline_config = 'h2'
+
+    cards = driver.find_elements(By.CSS_SELECTOR,card_config)
     
-    driver.get(site)
-    driver.maximize_window()
-
-    while True:
-
-        cards = driver.find_elements(By.CSS_SELECTOR,'div.feed-post')
-        
-        for card in cards:
+    for card in cards:
             time.sleep(5)
+            
+            if not running:
+                return
+
+            if len(verified_links) >=2:
+                running = False
+                return
+            
+            scroll_page()
+            
+            news_headline = card.find_element(
+                By.CSS_SELECTOR,news_headline_config
+                ).text
+            
+        
+            if filters:
+                if not any(_filter in news_headline.lower() for _filter in filters):
+                    continue
             
             link = card.find_element(
                 By.CSS_SELECTOR,'a'
@@ -107,37 +129,59 @@ def bot_config(site):
                 continue
 
             verified_links.add(link)
-            
-            news_headline = card.find_element(
-                By.CSS_SELECTOR,'h2'
-                ).text
-            
-            scroll_page()
-
-            if filters:
-                if not any(_filter in news_headline.lower() for _filter in filters):
-                    continue
 
             print(30 * "-")
             print(news_headline)
             print(link)
             
             
+            
             clicou = read_more()
             if not clicou:
                 break
+
+ctk.set_appearance_mode('dark')
+
+app = ctk.CTk()
+app.title('News Bot')
+app.geometry('600x650')
+
+def bot_config(site):
+    global running
+
+    running = True
+    verified_links.clear()
+
+    driver.get(site)
+    driver.maximize_window()
+
+    while running:
+        colect_infos(site)
 
 
 def run_bot():
     for i in selected_sites:
         bot_config(i)
-    
+    driver.quit() 
+    app.quit()   
 
-ctk.CTkLabel(app,text='Digite Palavras específicas para encontrar na machete das notícias de hoje').pack(pady='10')
+ctk.CTkLabel(
+    app,
+    text='Digite Palavras específicas para encontrar na machete das notícias de hoje'
+).pack(pady='10')
 
-filter_entry = ctk.CTkEntry(app,placeholder_text='Digite os filtros')
+filter_entry = ctk.CTkEntry(
+    app,
+    placeholder_text='Digite os filtros'
+)
+
 filter_entry.pack(pady=10)
-ctk.CTkButton(app,text='adicionar filtro',command= add_filter).pack(pady=10)
+
+ctk.CTkButton(
+    app,
+    text='adicionar filtro',
+    command= add_filter
+).pack(pady=10)
 
 ctk.CTkLabel(
     app,
@@ -196,7 +240,10 @@ bbc_button = ctk.CTkButton(
 )
 bbc_button.pack(pady=10)
 
+ctk.CTkButton(
+    app,
+    text='Iniciar Bot',
+    command=run_bot
+).pack(pady=10)
 
-
-ctk.CTkButton(app,text='Iniciar Bot', command=run_bot).pack(pady=10)
 app.mainloop()
