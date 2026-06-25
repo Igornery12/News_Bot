@@ -4,6 +4,8 @@
 This project is a Python and Selenium-based bot designed to collect news.
 
 The bot is responsible for searching, filtering, and automatically gathering daily news based on user requests.
+
+It also integrates with an AI model to generate automatic summaries of the collected news articles.
 ## Installation Instructions
 
 ### Prerequisites
@@ -11,7 +13,7 @@ The bot is responsible for searching, filtering, and automatically gathering dai
 ## Python
 ## Selenium
 ## Customtkinter
-## Genai
+## Google Generative AI (Gemini)
 
 
 ### Steps
@@ -28,7 +30,7 @@ pip install selenium
 ```
 pip install customtkinter
 ```
-## Google Generative AI (Gemini)
+## Install Google Generative AI (Gemini)
 
 ```
 pip install google-generativeai
