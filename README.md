@@ -11,6 +11,7 @@ The bot is responsible for searching, filtering, and automatically gathering dai
 ## Python
 ## Selenium
 ## Customtkinter
+## Genai
 
 
 ### Steps
@@ -26,4 +27,9 @@ pip install selenium
 
 ```
 pip install customtkinter
+```
+## Google Generative AI (Gemini)
+
+```
+pip install google-generativeai
 ```
