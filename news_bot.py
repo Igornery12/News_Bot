@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
 import customtkinter as ctk
+import google.generativeai as genai
 
 
 g1_url= 'https://g1.globo.com/ultimas-noticias/'
@@ -62,6 +63,22 @@ def toggle_site(site, button):
         )
 
 
+def ai(news_headline):
+    genai.configure(api_key="")
+    model = genai.GenerativeModel("gemini-2.5-flash")
+
+    texto = news_headline
+    time.sleep(3)
+
+    resposta = model.generate_content(
+            f"Faça um resumo curto desta noticia:\n\n{texto}"
+            )
+
+    
+    print(f'resumo: {resposta.text}')
+
+
+
 def scroll_page():
     return driver.execute_script("window.scrollBy(0, 250);")
 
@@ -89,14 +106,19 @@ def colect_infos(site):
     if 'bbc' in site :
         card_config = 'div.promo-text'
         news_headline_config = 'h3'
+        article_content = 'main div p'
+
 
     if 'g1' in site:
         card_config = 'div.feed-post'
         news_headline_config = 'h2'
+        article_content = '.mc-article-body p'
 
     if 'cnn' in site:
         card_config = 'figure.h-full'
         news_headline_config = 'h2'
+        article_content = 'div.text-lg p' 
+
 
     cards = driver.find_elements(By.CSS_SELECTOR,card_config)
     
@@ -132,8 +154,33 @@ def colect_infos(site):
 
             print(30 * "-")
             print(news_headline)
-            print(link)
+            print(link)            
+            print()
+            time.sleep(5)
+
+            driver.execute_script(
+    "window.open(arguments[0], '_blank');",
+    link
+    )
+
+            driver.switch_to.window(driver.window_handles[-1])
+
+            # coleta notícia
             
+            paragrafos = driver.find_elements(By.CSS_SELECTOR, article_content)
+            
+            texto = "\n".join(
+            p.text.strip()
+            for p in paragrafos
+            if p.text.strip()
+        )
+            
+
+            ai(texto)
+
+            driver.close()
+
+            driver.switch_to.window(driver.window_handles[0])
             
             
             clicou = read_more()
