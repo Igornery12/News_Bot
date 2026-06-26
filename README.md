@@ -35,3 +35,8 @@ pip install customtkinter
 ```
 pip install google-generativeai
 ```
+
+## Use instruction
+### Before running the bot, it is necessary to configure a Google AI Studio (Gemini) API key. This key must be entered in the AI configuration field.
+
+### After the initial setup, when executing the bot, the user must select the websites from which the system will collect the main news. If necessary, it is also possible to apply filters to refine the results, such as keywords or exclusion of specific topics.

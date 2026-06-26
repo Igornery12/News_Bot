@@ -64,20 +64,23 @@ def toggle_site(site, button):
 
 
 def ai(news_headline):
-    genai.configure(api_key="")
-    model = genai.GenerativeModel("gemini-2.5-flash")
 
-    texto = news_headline
-    time.sleep(3)
+    try:    
+        genai.configure(api_key="")
+        model = genai.GenerativeModel("gemini-2.5-flash")
 
-    resposta = model.generate_content(
-            f"Faça um resumo curto desta noticia:\n\n{texto}"
-            )
+        article_text = news_headline
+        time.sleep(3)
 
-    
-    print(f'resumo: {resposta.text}')
+        response = model.generate_content(
+                f"Faça um resumo curto desta noticia:\n\n{article_text}"
+                )
 
+        
+        print(f'resumo: {response.text}')
 
+    except Exception as e:
+        print(f"Error: {e}")
 
 def scroll_page():
     return driver.execute_script("window.scrollBy(0, 250);")
@@ -99,7 +102,7 @@ def read_more():
 
 
 
-def colect_infos(site):
+def collect_infos(site):
 
     global running
 
@@ -109,12 +112,12 @@ def colect_infos(site):
         article_content = 'main div p'
 
 
-    if 'g1' in site:
+    elif 'g1' in site:
         card_config = 'div.feed-post'
         news_headline_config = 'h2'
         article_content = '.mc-article-body p'
 
-    if 'cnn' in site:
+    elif 'cnn' in site:
         card_config = 'figure.h-full'
         news_headline_config = 'h2'
         article_content = 'div.text-lg p' 
@@ -128,7 +131,7 @@ def colect_infos(site):
             if not running:
                 return
 
-            if len(verified_links) >=2:
+            if len(verified_links) >=4:
                 running = False
                 return
             
@@ -159,32 +162,35 @@ def colect_infos(site):
             time.sleep(5)
 
             driver.execute_script(
-    "window.open(arguments[0], '_blank');",
-    link
-    )
+                "window.open(arguments[0], '_blank');",
+                link
+                )
 
             driver.switch_to.window(driver.window_handles[-1])
 
-            # coleta notícia
+                
+            wait.until(
+            EC.presence_of_all_elements_located(
+                    (By.CSS_SELECTOR, article_content)
+                )
+            )
             
-            paragrafos = driver.find_elements(By.CSS_SELECTOR, article_content)
+            paragraphs = driver.find_elements(By.CSS_SELECTOR, article_content)
             
-            texto = "\n".join(
-            p.text.strip()
-            for p in paragrafos
-            if p.text.strip()
+            article_text = "\n".join(
+            paragraph.text.strip()
+            for paragraph in paragraphs
+            if paragraph.text.strip()
         )
-            
-
-            ai(texto)
 
             driver.close()
 
             driver.switch_to.window(driver.window_handles[0])
             
+            ai(article_text)
             
-            clicou = read_more()
-            if not clicou:
+            cliked = read_more()
+            if not cliked:
                 break
 
 ctk.set_appearance_mode('dark')
@@ -203,14 +209,17 @@ def bot_config(site):
     driver.maximize_window()
 
     while running:
-        colect_infos(site)
+        collect_infos(site)
 
 
 def run_bot():
-    for i in selected_sites:
-        bot_config(i)
-    driver.quit() 
-    app.quit()   
+    if selected_sites:
+        for _site in selected_sites:
+            bot_config(_site)
+        driver.quit() 
+        app.quit()   
+    else:
+        return
 
 ctk.CTkLabel(
     app,
