@@ -14,6 +14,7 @@ It also integrates with an AI model to generate automatic summaries of the colle
 ## Selenium
 ## Customtkinter
 ## Google Generative AI (Gemini)
+## Telegram Bot
 
 
 ### Steps
@@ -36,7 +37,21 @@ pip install customtkinter
 pip install google-generativeai
 ```
 
-## Use instruction
-### Before running the bot, it is necessary to configure a Google AI Studio (Gemini) API key. This key must be entered in the AI configuration field.
+## Install Telegram Bot 
 
-### After the initial setup, when executing the bot, the user must select the websites from which the system will collect the main news. If necessary, it is also possible to apply filters to refine the results, such as keywords or exclusion of specific topics.
+```
+pip install python-telegram-bot
+```
+
+## Usage Instructions
+
+Before running the bot, you need to:
+
+- Configure a Google AI Studio (Gemini) API key.
+- Create a Telegram bot using BotFather.
+- Obtain your Telegram Bot Token and Chat ID.
+- Replace these values in the project.
+
+After the initial setup, run the application and select the news websites from which the bot will collect articles.
+
+If necessary, you can also add keyword filters to refine the results. The bot will collect the news, generate AI-powered summaries, and send them automatically to your Telegram chat.
