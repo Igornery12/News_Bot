@@ -5,7 +5,18 @@ from selenium.webdriver.support import expected_conditions as EC
 import time
 import customtkinter as ctk
 import google.generativeai as genai
+from telegram import Bot
+import asyncio
 
+TOKEN = ""
+CHAT_ID = ...  
+async def send_telegram(manchete, resumo, link):
+    bot = Bot(TOKEN)
+
+    await bot.send_message(
+        chat_id=CHAT_ID,
+        text=f"{manchete}\n\n{resumo}\n\n{link}"
+    )
 
 g1_url= 'https://g1.globo.com/ultimas-noticias/'
 cnn_url = 'https://www.cnnbrasil.com.br/ultimas-noticias/'
@@ -63,21 +74,40 @@ def toggle_site(site, button):
         )
 
 
-def ai(news_headline):
+def ai(article_text_,news_headline,link):
 
     try:    
         genai.configure(api_key="")
         model = genai.GenerativeModel("gemini-2.5-flash")
 
-        article_text = news_headline
+        article_text = article_text_
         time.sleep(3)
 
+        prompt = f"""
+            Resuma a notícia abaixo no seguinte formato:
+
+            
+
+            📌 RESUMO:
+            - 3 a 5 tópicos em bullet points
+            - linguagem clara e objetiva
+
+            🚨 DETALHES IMPORTANTES:
+            - apenas fatos relevantes
+
+            Texto:
+            {article_text}
+            """
+        
         response = model.generate_content(
-                f"Faça um resumo curto desta noticia:\n\n{article_text}"
+                prompt
                 )
+
 
         
         print(f'resumo: {response.text}')
+
+        asyncio.run(send_telegram(news_headline,response.text,link))
 
     except Exception as e:
         print(f"Error: {e}")
@@ -187,7 +217,9 @@ def collect_infos(site):
 
             driver.switch_to.window(driver.window_handles[0])
             
-            ai(article_text)
+            ai(article_text,news_headline,link)
+
+            
             
             cliked = read_more()
             if not cliked:
